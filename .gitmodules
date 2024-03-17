@@ -1,0 +1,3 @@
+[submodule "TrackersListCollection"]
+	path = TrackersListCollection
+	url = git@github.com:XIU2/TrackersListCollection.git

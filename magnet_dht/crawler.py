@@ -4,6 +4,7 @@
 import socket
 import codecs
 import time
+from pathlib import Path
 from threading import Thread
 from collections import deque
 from multiprocessing import Process, cpu_count
@@ -14,31 +15,7 @@ from .utils import get_logger, get_nodes_info, get_rand_id, get_neighbor
 from .database import RedisClient
 
 # 服务器 tracker
-BOOTSTRAP_NODES = [
-    "udp://tracker.open-internet.nl:6969/announce",
-    "udp://tracker.coppersurfer.tk:6969/announce",
-    "udp://exodus.desync.com:6969/announce",
-    "udp://tracker.opentrackr.org:1337/announce",
-    "udp://tracker.internetwarriors.net:1337/announce",
-    "udp://9.rarbg.to:2710/announce",
-    "udp://public.popcorn-tracker.org:6969/announce",
-    "udp://tracker.vanitycore.co:6969/announce",
-    "https://1.track.ga:443/announce",
-    "udp://tracker.tiny-vps.com:6969/announce",
-    "udp://tracker.cypherpunks.ru:6969/announce",
-    "udp://thetracker.org:80/announce",
-    "udp://tracker.torrent.eu.org:451/announce",
-    "udp://retracker.lanta-net.ru:2710/announce",
-    "udp://bt.xxx-tracker.com:2710/announce",
-    "http://retracker.telecom.by:80/announce",
-    "http://retracker.mgts.by:80/announce",
-    "http://0d.kebhana.mx:443/announce",
-    "udp://torr.ws:2710/announce",
-    "udp://open.stealth.si:80/announce",
-    ("router.bittorrent.com", 6881),
-    ("dht.transmissionbt.com", 6881),
-    ("router.utorrent.com", 6881),
-]
+BOOTSTRAP_NODES = []
 
 # 双端队列容量
 MAX_NODE_QSIZE = 10000
@@ -310,6 +287,16 @@ def start_server():
     """
     多线程启动服务
     """
+      # 读取列表
+    list_path = Path(__file__).parent.parent.joinpath('TrackersListCollection', 'best.txt')
+    f = open(list_path)
+    line = f.readline()
+    while line:
+        if len(line) > 0 and line != '\n':
+            BOOTSTRAP_NODES.append(line.strip())
+        line = f.readline()
+    f.close()
+
     processes = []
     for i in range(MAX_PROCESSES):
         processes.append(Process(target=_start_thread, args=(i,)))
